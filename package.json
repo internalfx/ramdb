@@ -1,0 +1,11 @@
+{
+  "name": "ramdb",
+  "version": "0.0.1",
+  "description": "A client side in-memory database for React. ",
+  "main": "index.es6",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Bryan Morris",
+  "license": "ISC"
+}
