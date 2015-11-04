@@ -2,10 +2,22 @@
   "name": "ramdb",
   "version": "0.0.1",
   "description": "A client side in-memory database for React.",
-  "main": "./src/index.es6",
+  "main": "./src/ramdb.es6",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha"
   },
   "author": "Bryan Morris",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "immutable": "^3.7.5",
+    "mout": "^0.11.0"
+  },
+  "devDependencies": {
+    "babel": "^6.0.15",
+    "babel-preset-es2015": "^6.0.15",
+    "benchmark": "^1.0.0",
+    "chai": "^3.4.0",
+    "faker": "^3.0.1",
+    "mocha": "^2.3.3"
+  }
 }
