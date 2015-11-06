@@ -5,12 +5,20 @@ var wpConf = require('./webpack.config.js')
 var gutil = require('gulp-util')
 var babel = require('gulp-babel')
 
-gulp.task('default', ['babel'])
+var source = 'src/**/*'
+
+gulp.task('default', ['babel', 'babel-watch'])
+
+gulp.task('build', ['babel'])
+
+gulp.task('babel-watch', function () {
+  return gulp.watch(source, ['babel'])
+})
 
 gulp.task('babel', function (callback) {
-  return gulp.src('src/**/*')
+  return gulp.src(source)
     .pipe(babel())
-    .pipe(gulp.dest('dist'));
+    .pipe(gulp.dest('dist'))
 })
 
 gulp.task('webpack', function (callback) {
