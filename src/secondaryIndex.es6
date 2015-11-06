@@ -5,6 +5,7 @@ import isArray from 'mout/lang/isArray'
 import merge from 'mout/object/merge'
 import omit from 'mout/object/omit'
 import clone from 'mout/lang/clone'
+import Immutable from 'immutable'
 
 var BaseSecondaryIndex = {
 
@@ -13,7 +14,7 @@ var BaseSecondaryIndex = {
       keyList = [keyList]
     }
 
-    let key = keyList.shift()
+    let key = keyList.shift() || null
     let pos = binarySearch(this.keys, key)
 
     if (keyList.length === 0) {
@@ -43,7 +44,7 @@ var BaseSecondaryIndex = {
       keyList = [keyList]
     }
 
-    let key = keyList.shift()
+    let key = keyList.shift() || null
     let pos = binarySearch(this.keys, key)
 
     if (keyList.length === 0) {
@@ -129,7 +130,7 @@ var BaseSecondaryIndex = {
 
     let pos
 
-    if (leftKey) {
+    if (leftKey !== undefined) {
       pos = binarySearch(this.keys, leftKey)
     } else {
       pos = {
@@ -144,7 +145,7 @@ var BaseSecondaryIndex = {
       }
 
       for (let i = pos.index; i < this.keys.length; i += 1) {
-        if (rightKey) {
+        if (rightKey !== undefined) {
           if (opts.rightInclusive) {
             if (this.keys[i] > rightKey) { break }
           } else {
@@ -171,9 +172,9 @@ var BaseSecondaryIndex = {
 
         if (this.values[i].isIndex) {
           if (currKey === leftKey) {
-            results = results.concat(this.values[i]._between(clone(leftKeys), rightKeys.map(function () { return null }), opts))
+            results = results.concat(this.values[i]._between(clone(leftKeys), rightKeys.map(function () { return undefined }), opts))
           } else if (currKey === rightKey) {
-            results = results.concat(this.values[i]._between(leftKeys.map(function () { return null }), clone(rightKeys), opts))
+            results = results.concat(this.values[i]._between(leftKeys.map(function () { return undefined }), clone(rightKeys), opts))
           } else {
             results = results.concat(this.values[i].getAll())
           }
@@ -196,7 +197,7 @@ var BaseSecondaryIndex = {
     }
   },
 
-  delete: function (keyList, value) {
+  remove: function (keyList, value) {
     if (!isArray(keyList)) {
       keyList = [keyList]
     }
@@ -225,12 +226,50 @@ var BaseSecondaryIndex = {
   clear: function () {
     this.keys = []
     this.values = []
+  },
+
+  insertRecord: function (data) {
+    if (!Immutable.Map.isMap(data)) {
+      throw new Error('data must be an Immutable Map')
+    }
+
+    let keyList = []
+    this.fieldList.forEach(function (field) {
+      let key = data.get(field, null)
+      keyList.push(key)
+    })
+
+    this.set(keyList, data.get('id'))
+  },
+
+  removeRecord: function (data) {
+    if (!Immutable.Map.isMap(data)) {
+      throw new Error('data must be an Immutable Map')
+    }
+
+    let keyList = []
+    this.fieldList.forEach(function (field) {
+      let key = data.get(field, null)
+      keyList.push(key)
+    })
+
+    this.remove(keyList, data.get('id'))
+  },
+
+  updateRecord: function (data) {
+    this.removeRecord(data)
+    this.insertRecord(data)
   }
 }
 
-var createIndex = function () {
+var createIndex = function (fieldList = []) {
   var index = Object.create(BaseSecondaryIndex)
 
+  if (!isArray(fieldList)) {
+    throw new Error('fieldList must be an array.')
+  }
+
+  index.fieldList = fieldList
   index.isIndex = true
   index.keys = []
   index.values = []
