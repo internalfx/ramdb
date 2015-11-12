@@ -233,10 +233,8 @@ var BaseSecondaryIndex = {
       throw new Error('data must be an Immutable Map')
     }
 
-    let keyList = []
-    this.fieldList.forEach(function (field) {
-      let key = data.get(field, null)
-      keyList.push(key)
+    let keyList = this.fieldList.map(function (field) {
+      return data.get(field, null)
     })
 
     this.set(keyList, data.get('id'))
@@ -247,10 +245,8 @@ var BaseSecondaryIndex = {
       throw new Error('data must be an Immutable Map')
     }
 
-    let keyList = []
-    this.fieldList.forEach(function (field) {
-      let key = data.get(field, null)
-      keyList.push(key)
+    let keyList = this.fieldList.map(function (field) {
+      return data.get(field, null)
     })
 
     this.remove(keyList, data.get('id'))

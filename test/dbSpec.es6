@@ -3,8 +3,10 @@
 /* global it */
 
 import {assert} from 'chai'
-import createIndex from '../src/secondaryIndex'
+import ramdb from '../src/ramdb'
 import Immutable from 'immutable'
+
+var db = ramdb()
 
 var testdb = Immutable.fromJS([
   { age: 46,
@@ -129,74 +131,12 @@ var testdb = Immutable.fromJS([
   title: 'Senior Klingon Consultant' }
 ])
 
-describe('secondaryIndex', () => {
-  describe('simple keys', () => {
-    let index = createIndex()
-
-    it('set does not error', (done) => {
-      testdb.forEach(function (record) {
-        index.set(record.get('age'), record.get('id'))
-      })
-      done()
+describe('db', () => {
+  it('insert does not error', (done) => {
+    testdb.forEach(function (record) {
+      db.insert(record)
     })
 
-    it('get returns correct result', (done) => {
-      let result = index.get(1)
-      assert.deepEqual(result, ['Serena Bruen'])
-      done()
-    })
-
-    it('between returns correct result', (done) => {
-      let result = index.between([1], [4])
-      assert.deepEqual(result, ['Serena Bruen', 'Albertha Simonis Ms.', 'Shana Lubowitz'])
-      done()
-    })
-  })
-
-  describe('compound keys', () => {
-    let index = createIndex(['title', 'age'])
-
-    it('set does not error', (done) => {
-      testdb.forEach(function (record) {
-        index.insertRecord(record)
-      })
-      done()
-    })
-
-    it('get returns correct result one level deep', (done) => {
-      let result = index.get('Senior Detector Agent')
-      assert.deepEqual(result, ['Clemmie Powlowski', 'Serena Bruen', 'Shana Lubowitz'])
-      done()
-    })
-
-    it('get returns correct result two levels deep', (done) => {
-      let result = index.get(['Senior Detector Agent', 1])
-      assert.deepEqual(result, ['Serena Bruen'])
-      done()
-    })
-
-    it('between returns correct result for one level deep', (done) => {
-      let result = index.between(['Internal Response Agent'], ['Senior Detector Agent'], {rightInclusive: true})
-      assert.deepEqual(result, ['Lesley Howe', 'Elva Graham', 'Ms. Kiera Hodkiewicz', 'Ashton Oberbrunner', 'Miss Fermin Bartell', 'Ardella O\'Conner', 'Durward Runolfsson', 'Clemmie Powlowski', 'Serena Bruen', 'Shana Lubowitz'])
-      done()
-    })
-
-    it('between returns correct result for two levels deep', (done) => {
-      let result = index.between(['Internal Response Agent', 20], ['Senior Detector Agent', 3], {rightInclusive: true, offset: 1})
-      assert.deepEqual(result, ['Ms. Kiera Hodkiewicz', 'Ashton Oberbrunner', 'Miss Fermin Bartell', 'Ardella O\'Conner', 'Durward Runolfsson', 'Clemmie Powlowski', 'Serena Bruen', 'Shana Lubowitz'])
-      done()
-    })
-
-    it("Query {'>': ['Internal Response Agent', 20], '<=': ['Senior Detector Agent', 3], offset: 2, limit: 5}", (done) => {
-      let result = index.query({'>': ['Internal Response Agent', 20], '<=': ['Senior Detector Agent', 3], offset: 2, limit: 5})
-      assert.deepEqual(result, ['Ashton Oberbrunner', 'Miss Fermin Bartell', 'Ardella O\'Conner', 'Durward Runolfsson', 'Clemmie Powlowski'])
-      done()
-    })
-
-    it("Query {'>': ['Internal Response Agent', 20], '<=': ['Senior Detector Agent', 3], offset: 1}", (done) => {
-      let result = index.query({'>': ['Internal Response Agent', 20], '<=': ['Senior Detector Agent', undefined], offset: 1})
-      assert.deepEqual(result, ['Ms. Kiera Hodkiewicz', 'Ashton Oberbrunner', 'Miss Fermin Bartell', 'Ardella O\'Conner', 'Durward Runolfsson', 'Clemmie Powlowski', 'Serena Bruen', 'Shana Lubowitz'])
-      done()
-    })
+    done()
   })
 })
